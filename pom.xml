@@ -43,17 +43,69 @@
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
 			<version>1.2.5-R2.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 		<!-- Other -->
 		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.0</version>
+			<groupId>org.apache.directory.studio</groupId>
+			<artifactId>org.apache.commons.collections</artifactId>
+			<version>3.2.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.trove4j</groupId>
+			<artifactId>trove4j</artifactId>
+			<version>3.0.2</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!-- License header formatting plugin -->
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.10.b1</version>
+				<executions>
+					<execution>
+						<phase>clean</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<quiet>true</quiet>
+					<encoding>UTF-8</encoding>
+					<strictCheck>true</strictCheck>
+					<header>${basedir}/HEADER.txt</header>
+					<keywords>
+						<keyword>${project.name}</keyword>
+						<keyword>license</keyword>
+					</keywords>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<properties>
+						<name>${project.name}</name>
+						<url>http://alta189.com/</url>
+						<license>GPL</license>
+						<licenseUrl>http://www.gnu.org/licenses/gpl-3.0.txt</licenseUrl>
+						<copyright>Copyright (c) 2012, alta189</copyright>
+					</properties>
+					<includes>
+						<include>src/main/java/**</include>
+						<include>src/test/java/**</include>
+					</includes>
+				</configuration>
+			</plugin>
 			<!-- JAR dependency addition plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -67,9 +119,9 @@
 						</goals>
 						<configuration>
 							<artifactSet>
-								<includes>
-									<include>commons-collections:commons-collections</include>
-								</includes>
+								<excludes>
+									<exclude>org.bukkit:bukkit</exclude>
+								</excludes>
 							</artifactSet>
 						</configuration>
 					</execution>
