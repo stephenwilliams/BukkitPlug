@@ -22,9 +22,13 @@ public class ReflectionUtil {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T getFieldValue(Object target, String name) {
-		Field field = findField(target.getClass(), name);
+		return getFieldValue(target.getClass(), target, name);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T getFieldValue(Class<?> clazz, Object target, String name) {
+		Field field = findField(clazz, name);
 		if (field != null) {
 			field.setAccessible(true);
 			try {
