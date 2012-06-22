@@ -10,6 +10,10 @@
 	<artifactId>bukkitplug</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<distributionManagement>
 		<!-- Publish versioned releases here -->
 		<repository>
@@ -67,6 +71,7 @@
 	</dependencies>
 
 	<build>
+		<defaultGoal>clean install</defaultGoal>
 		<plugins>
 			<!-- License header formatting plugin -->
 			<plugin>
