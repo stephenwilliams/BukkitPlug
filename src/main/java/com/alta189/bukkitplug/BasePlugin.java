@@ -1,5 +1,8 @@
 package com.alta189.bukkitplug;
 
+import com.alta189.bukkitplug.command.CommandFactory;
+import com.alta189.bukkitplug.command.CommandManager;
+import com.alta189.bukkitplug.command.CommonCommand;
 import com.alta189.bukkitplug.util.ReflectionUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.PluginClassLoader;
@@ -7,6 +10,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -14,6 +18,7 @@ import java.util.logging.Level;
 
 public abstract class BasePlugin extends JavaPlugin {
 	private static final Yaml yaml = new Yaml();
+	private CommandFactory factory = new CommandFactory(this);
 	public boolean debugMode = false;
 
 	@Override
@@ -92,6 +97,13 @@ public abstract class BasePlugin extends JavaPlugin {
 	}
 
 	public abstract void disable();
+
+	public void registerCommands(Class<?> clazz) {
+		List<CommonCommand> commands = factory.build(clazz);
+	    if (commands.size() > 0) {
+			CommandManager.registerCommands(commands);
+		}
+	}
 
 	public void log(Level level, String message) {
 		getLogger().log(level, message);

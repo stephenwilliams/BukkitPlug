@@ -7,13 +7,13 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Usage {
+public @interface Aliases {
 
 	/**
-	 * Correct usage of the command.
+	 * Array of aliases for given command.
 	 *
-	 * @return usage value
+	 * @return aliases value
 	 */
-	String value();
+	String[] value();
 
 }
