@@ -45,6 +45,7 @@ public abstract class BasePlugin extends JavaPlugin {
 	public void onLoad() {
 		JarFile file = null;
 		InputStream inputStream = null;
+		boolean classLoaderFix = true;
 		try {
 			file = new JarFile(getFile());
 
@@ -59,6 +60,9 @@ public abstract class BasePlugin extends JavaPlugin {
 			Map<?, ?> map = (Map<?, ?>) yaml.load(inputStream);
 			if (map.containsKey("debug")) {
 				setDebugMode(map.get("debug").toString().equalsIgnoreCase("true"));
+			}
+			if (map.containsKey("classloader-fix")) {
+				classLoaderFix = !map.get("debug").toString().equalsIgnoreCase("false");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -77,25 +81,27 @@ public abstract class BasePlugin extends JavaPlugin {
 			}
 		}
 
-		debug("Loaded in DEBUG MODE!");
+		if (classLoaderFix) {
+			debug("Loaded in DEBUG MODE!");
 
-		debug("Using reflection to replace ClassLoader");
-		BetterClassLoader classLoader = new BetterClassLoader(CastUtil.safeCast(getClassLoader(), PluginClassLoader.class), this);
-		ReflectionUtil.setFieldValue(this, "classLoader", this);
+			debug("Using reflection to replace ClassLoader");
+			BetterClassLoader classLoader = new BetterClassLoader(CastUtil.safeCast(getClassLoader(), PluginClassLoader.class), this);
+			ReflectionUtil.setFieldValue(this, "classLoader", this);
 
-		if (getClassLoader() instanceof BetterClassLoader) {
-			debug("Successfully replaced the classLoader in the plugin object");
-		} else {
-			debug("Unsuccessfully replaced the classLoader in the plugin object");
-		}
+			if (getClassLoader() instanceof BetterClassLoader) {
+				debug("Successfully replaced the classLoader in the plugin object");
+			} else {
+				debug("Unsuccessfully replaced the classLoader in the plugin object");
+			}
 
-		Map<String, PluginClassLoader> classLoaders = ReflectionUtil.getFieldValue(getPluginLoader(), "loaders");
-		classLoaders.put(getName(), classLoader);
+			Map<String, PluginClassLoader> classLoaders = ReflectionUtil.getFieldValue(getPluginLoader(), "loaders");
+			classLoaders.put(getName(), classLoader);
 
-		if (((Map<String, PluginClassLoader>) ReflectionUtil.getFieldValue(getPluginLoader(), "loaders")).get(getName()) instanceof BetterClassLoader) {
-			debug("Successfully replaced the classLoader in the plugin loader object");
-		} else {
-			debug("Unsuccessfully replaced the classLoader in the plugin loader object");
+			if (((Map<String, PluginClassLoader>) ReflectionUtil.getFieldValue(getPluginLoader(), "loaders")).get(getName()) instanceof BetterClassLoader) {
+				debug("Successfully replaced the classLoader in the plugin loader object");
+			} else {
+				debug("Unsuccessfully replaced the classLoader in the plugin loader object");
+			}
 		}
 	}
 
