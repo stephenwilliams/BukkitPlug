@@ -100,7 +100,7 @@
 					</mapping>
 					<properties>
 						<name>${project.name}</name>
-						<url>http://alta189.com/</url>
+						<url>http://alta189.com</url>
 						<license>GPL</license>
 						<licenseUrl>http://www.gnu.org/licenses/gpl-3.0.txt</licenseUrl>
 						<copyright>Copyright (c) 2012, alta189</copyright>

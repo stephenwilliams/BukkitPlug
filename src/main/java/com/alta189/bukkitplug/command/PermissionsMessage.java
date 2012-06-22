@@ -1,7 +1,7 @@
 /*
  * This file is part of BukkitPlug.
  *
- * Copyright (c) 2012, alta189 <http://alta189.com//>
+ * Copyright (c) 2012, alta189 <http://alta189.com/>
  * BukkitPlug is licensed under the GPL.
  *
  * BukkitPlug is free software: you can redistribute it and/or modify
