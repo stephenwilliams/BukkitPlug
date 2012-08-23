@@ -63,7 +63,7 @@ public abstract class BasePlugin extends JavaPlugin {
 				setDebugMode(map.get("debug").toString().equalsIgnoreCase("true"));
 			}
 			if (map.containsKey("classloader-fix")) {
-				classLoaderFix = !map.get("debug").toString().equalsIgnoreCase("false");
+				classLoaderFix = map.get("classloader-fix").toString().equalsIgnoreCase("true");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -80,6 +80,10 @@ public abstract class BasePlugin extends JavaPlugin {
 				} catch (IOException ignored) {
 				}
 			}
+		}
+
+		if (debugMode) {
+			getLogger().setLevel(Levels.DEBUG);
 		}
 
 		if (classLoaderFix) {
@@ -140,9 +144,11 @@ public abstract class BasePlugin extends JavaPlugin {
 	}
 
 	public void debug(String message) {
-		if (isDebugMode()) {
-			log(Level.INFO, "[DEBUG] " + message);
-		}
+		log(Levels.DEBUG, message);
+	}
+
+	public void debug(String message, Throwable throwable) {
+		log(Levels.DEBUG, message, throwable);
 	}
 
 	public void info(String message) {
