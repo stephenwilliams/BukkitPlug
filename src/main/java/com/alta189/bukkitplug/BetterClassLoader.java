@@ -19,7 +19,7 @@
  */
 package com.alta189.bukkitplug;
 
-import com.alta189.bukkitplug.util.ReflectionUtil;
+import com.alta189.commons.util.ReflectionUtil;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.java.PluginClassLoader;

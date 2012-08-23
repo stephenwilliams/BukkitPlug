@@ -19,7 +19,7 @@
  */
 package com.alta189.bukkitplug.command;
 
-import com.alta189.bukkitplug.CastUtil;
+import com.alta189.commons.util.CastUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

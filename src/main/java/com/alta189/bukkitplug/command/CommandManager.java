@@ -19,7 +19,7 @@
  */
 package com.alta189.bukkitplug.command;
 
-import com.alta189.bukkitplug.util.ReflectionUtil;
+import com.alta189.commons.util.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.SimplePluginManager;
