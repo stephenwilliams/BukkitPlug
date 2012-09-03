@@ -19,16 +19,24 @@
  */
 package com.alta189.bukkitplug;
 
-import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
-public class Levels extends Level {
-	public static final Level DEBUG = new Levels("DEBUG", INFO.intValue() + 1);
+import org.bukkit.plugin.PluginLogger;
 
-	protected Levels(String name, int value) {
-		super(name, value);
+public class BetterPluginLogger extends PluginLogger {
+	private final BasePlugin plugin;
+
+	public BetterPluginLogger(BasePlugin plugin) {
+		super(plugin);
+		this.plugin = plugin;
 	}
 
-	protected Levels(String name, int value, String resourceBundleName) {
-		super(name, value, resourceBundleName);
+	@Override
+	public void log(LogRecord logRecord) {
+		if (logRecord.getLevel() == Levels.DEBUG && !plugin.isDebugMode()) {
+			System.out.println("Returning!");
+			return;
+		}
+		super.log(logRecord);
 	}
 }

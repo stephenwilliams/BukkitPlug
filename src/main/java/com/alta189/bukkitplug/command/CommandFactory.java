@@ -19,15 +19,17 @@
  */
 package com.alta189.bukkitplug.command;
 
-import com.alta189.bukkitplug.BasePlugin;
-import org.bukkit.command.CommandSender;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.alta189.bukkitplug.BasePlugin;
+import com.alta189.commons.util.injectors.Injector;
+
+import org.bukkit.command.CommandSender;
 
 public class CommandFactory {
 	private final BasePlugin plugin;
@@ -36,13 +38,13 @@ public class CommandFactory {
 		this.plugin = plugin;
 	}
 
-
-	public List<CommonCommand> build(Class<?> clazz) {
+	public List<CommonCommand> build(Class<?> clazz, Injector injector) {
+		Object o = injector.newInstance(clazz);
 		List<CommonCommand> result = new ArrayList<CommonCommand>();
 		Class<?> search = clazz;
-		while (clazz != null) {
-			for (Method method : clazz.getDeclaredMethods()) {
-				CommonCommand cmd = build(method);
+		while (search != null) {
+			for (Method method : search.getDeclaredMethods()) {
+				CommonCommand cmd = build(method, o);
 				if (cmd != null) {
 					result.add(cmd);
 				}
@@ -52,7 +54,7 @@ public class CommandFactory {
 		return result;
 	}
 
-	public CommonCommand build(Method method) {
+	public CommonCommand build(Method method, Object o) {
 		method.setAccessible(true);
 
 		// @Command and @Description are required
@@ -71,12 +73,17 @@ public class CommandFactory {
 			return null;
 		}
 
-		if (parameters[0].equals(CommandSender.class) || parameters[1].equals(CommandContext.class)) {
+		if (!parameters[0].equals(CommandSender.class) || !parameters[1].equals(CommandContext.class)) {
 			plugin.debug("Cannot register method because it's parameter types are incorrect: " + methodToString(method));
 			return null;
 		}
 
 		Command command = method.getAnnotation(Command.class);
+		String name = command.name();
+		if (name == null || name.isEmpty()) {
+			name = method.getName();
+		}
+
 		Description description = method.getAnnotation(Description.class);
 
 		List<String> aliases = new ArrayList<String>();
@@ -84,11 +91,11 @@ public class CommandFactory {
 			aliases.addAll(Arrays.asList(method.getAnnotation(Aliases.class).value()));
 		}
 
-		String usage = null;
+		String usage = "";
 		if (method.isAnnotationPresent(Usage.class)) {
 			usage = method.getAnnotation(Usage.class).value();
 		}
-		CommonCommand cmd = new CommonCommand(command.name(), description.value(), usage, aliases, plugin);
+		CommonCommand cmd = new CommonCommand(name, description.value(), usage, aliases, plugin);
 
 		if (command.max() > -1) {
 			cmd.setMax(command.max());
@@ -109,6 +116,9 @@ public class CommandFactory {
 		if (method.isAnnotationPresent(PermissionsMessage.class)) {
 			cmd.setPermissionMessage(method.getAnnotation(PermissionsMessage.class).value());
 		}
+
+		CommonCommandExecutor executor = new CommonCommandExecutor(o, method);
+		cmd.setExecutor(executor);
 		return cmd;
 	}
 
@@ -120,7 +130,7 @@ public class CommandFactory {
 				.append(method.getName())
 				.append("(");
 
-		TypeVariable[] params =  method.getTypeParameters();
+		TypeVariable[] params = method.getTypeParameters();
 		Class<?>[] types = method.getParameterTypes();
 		if (params.length > 0) {
 			int i = 0;
@@ -128,11 +138,10 @@ public class CommandFactory {
 				builder.append(types[0].getSimpleName())
 						.append(" ")
 						.append(param.getName());
-				i ++;
+				i++;
 			}
 		}
 		builder.append(")");
 		return builder.toString();
 	}
-
 }

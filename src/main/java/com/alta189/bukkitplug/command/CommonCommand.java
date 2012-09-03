@@ -81,7 +81,7 @@ public class CommonCommand extends org.bukkit.command.Command implements PluginI
 
 	@Override
 	public Plugin getPlugin() {
-		return null;
+		return plugin;
 	}
 
 	public CommandExecutor getExecutor() {

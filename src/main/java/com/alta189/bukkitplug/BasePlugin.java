@@ -19,22 +19,23 @@
  */
 package com.alta189.bukkitplug;
 
-import com.alta189.bukkitplug.command.CommandFactory;
-import com.alta189.bukkitplug.command.CommandManager;
-import com.alta189.bukkitplug.command.CommonCommand;
-import com.alta189.commons.util.CastUtil;
-import com.alta189.commons.util.ReflectionUtil;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.PluginClassLoader;
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
+
+import com.alta189.bukkitplug.command.CommandFactory;
+import com.alta189.bukkitplug.command.CommandManager;
+import com.alta189.bukkitplug.command.CommonCommand;
+import com.alta189.commons.util.ReflectionUtil;
+import com.alta189.commons.util.injectors.EmptyInjector;
+import com.alta189.commons.util.injectors.Injector;
+
+import org.yaml.snakeyaml.Yaml;
+
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class BasePlugin extends JavaPlugin {
 	private static final Yaml yaml = new Yaml();
@@ -44,28 +45,18 @@ public abstract class BasePlugin extends JavaPlugin {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
+		getLogger().info("ON LOAD");
 		JarFile file = null;
 		InputStream inputStream = null;
-		boolean classLoaderFix = true;
 		try {
-			file = new JarFile(getFile());
 
-			JarEntry entry = file.getJarEntry("plugin.yml");
-
-			if (entry == null) {
-				throw new RuntimeException("Something has gone terribly wrong, the plugin.yml is missing after loading the plugin.");
-			}
-
-			inputStream = file.getInputStream(entry);
+			inputStream = getResource("plugin.yml");
 
 			Map<?, ?> map = (Map<?, ?>) yaml.load(inputStream);
 			if (map.containsKey("debug")) {
 				setDebugMode(map.get("debug").toString().equalsIgnoreCase("true"));
 			}
-			if (map.containsKey("classloader-fix")) {
-				classLoaderFix = map.get("classloader-fix").toString().equalsIgnoreCase("true");
-			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (file != null) {
@@ -81,33 +72,7 @@ public abstract class BasePlugin extends JavaPlugin {
 				}
 			}
 		}
-
-		if (debugMode) {
-			getLogger().setLevel(Levels.DEBUG);
-		}
-
-		if (classLoaderFix) {
-			debug("Loaded in DEBUG MODE!");
-
-			debug("Using reflection to replace ClassLoader");
-			BetterClassLoader classLoader = new BetterClassLoader(CastUtil.safeCast(getClassLoader(), PluginClassLoader.class), this);
-			ReflectionUtil.setFieldValue(this, "classLoader", this);
-
-			if (getClassLoader() instanceof BetterClassLoader) {
-				debug("Successfully replaced the classLoader in the plugin object");
-			} else {
-				debug("Unsuccessfully replaced the classLoader in the plugin object");
-			}
-
-			Map<String, PluginClassLoader> classLoaders = ReflectionUtil.getFieldValue(getPluginLoader(), "loaders");
-			classLoaders.put(getName(), classLoader);
-
-			if (((Map<String, PluginClassLoader>) ReflectionUtil.getFieldValue(getPluginLoader(), "loaders")).get(getName()) instanceof BetterClassLoader) {
-				debug("Successfully replaced the classLoader in the plugin loader object");
-			} else {
-				debug("Unsuccessfully replaced the classLoader in the plugin loader object");
-			}
-		}
+		ReflectionUtil.setFieldValue(this, "logger", new BetterPluginLogger(this));
 	}
 
 	@Override
@@ -129,8 +94,12 @@ public abstract class BasePlugin extends JavaPlugin {
 	public abstract void disable();
 
 	public void registerCommands(Class<?> clazz) {
-		List<CommonCommand> commands = factory.build(clazz);
-	    if (commands.size() > 0) {
+		registerCommands(clazz, EmptyInjector.getInstance());
+	}
+
+	public void registerCommands(Class<?> clazz, Injector injector) {
+		List<CommonCommand> commands = factory.build(clazz, injector);
+		if (commands.size() > 0) {
 			CommandManager.registerCommands(commands);
 		}
 	}
@@ -144,11 +113,15 @@ public abstract class BasePlugin extends JavaPlugin {
 	}
 
 	public void debug(String message) {
-		log(Levels.DEBUG, message);
+		if (isDebugMode()) {
+			log(Levels.DEBUG, message);
+		}
 	}
 
 	public void debug(String message, Throwable throwable) {
-		log(Levels.DEBUG, message, throwable);
+		if (isDebugMode()) {
+			log(Levels.DEBUG, message, throwable);
+		}
 	}
 
 	public void info(String message) {

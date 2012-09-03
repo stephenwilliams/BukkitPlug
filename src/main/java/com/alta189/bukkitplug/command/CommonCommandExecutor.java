@@ -41,12 +41,12 @@ public class CommonCommandExecutor implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
 		CommonCommand commonCommand = CastUtil.safeCast(command);
-		CommandContext commandContext = new CommandContext(strings);
+		CommandContext commandContext = new CommandContext(command.getName(), strings);
 		if (commandContext.length() >= commonCommand.getMin() && (commonCommand.getMax() == -1 || commonCommand.getMax() <= commandContext.length())) {
 			try {
 				List<Object> commandArgs = new ArrayList<Object>();
-				commandArgs.add(commandContext);
 				commandArgs.add(commandSender);
+				commandArgs.add(commandContext);
 				method.invoke(target, commandArgs.toArray());
 			} catch (IllegalAccessException e) {
 				throw new WrappedCommandException(e);

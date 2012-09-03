@@ -43,8 +43,8 @@ public class CommandContext {
 	protected final TCharSet booleanFlags = new TCharHashSet();
 	protected final TCharObjectMap<String> valueFlags = new TCharObjectHashMap<String>();
 
-	public CommandContext(String[] args) throws CommandException {
-		this(args, null);
+	public CommandContext(String command, String[] args) throws CommandException {
+		this(command, args, null);
 	}
 
 	/**
@@ -54,18 +54,18 @@ public class CommandContext {
 	 *            value flag parsing.
 	 * @throws CommandException This is thrown if flag fails for some reason.
 	 */
-	public CommandContext(String[] args, TCharSet valueFlags) throws CommandException {
+	public CommandContext(String command, String[] args, TCharSet valueFlags) throws CommandException {
 		if (valueFlags == null) {
 			valueFlags = new TCharHashSet();
 		}
 
 		originalArgs = args;
-		command = args[0];
+		this.command = command;
 
 		// Eliminate empty args and combine multiword args first
 		TIntList argIndexList = new TIntArrayList(args.length);
 		List<String> argList = new ArrayList<String>(args.length);
-		for (int i = 1; i < args.length; ++i) {
+		for (int i = 0; i < args.length; ++i) {
 			String arg = args[i];
 			if (StringUtils.isEmpty(arg)) {
 				continue;
