@@ -34,7 +34,6 @@ public class BetterPluginLogger extends PluginLogger {
 	@Override
 	public void log(LogRecord logRecord) {
 		if (logRecord.getLevel() == Levels.DEBUG && !plugin.isDebugMode()) {
-			System.out.println("Returning!");
 			return;
 		}
 		super.log(logRecord);
